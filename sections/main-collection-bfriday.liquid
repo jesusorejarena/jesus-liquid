@@ -1,0 +1,35 @@
+{% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+{{ 'component-collection-bgfriday-banner.css' | asset_url | stylesheet_tag }}
+
+<div class="banner">
+  <img src="{{ section.settings.image | img_url: "master" }}" alt="Imagen del banner" class="banner-image">
+  <div class="banner-content">
+    <h1 class="banner-title">{{ section.settings.title }}</h1>
+    <p class="banner-description">{{ section.settings.description }}</p>
+  </div>
+</div>
+
+
+{% schema %}
+{
+	"name": "Banner",
+	"tag": "section",
+	"settings": [
+		{
+			"type": "text",
+			"label": "Title",
+			"id": "title" 
+		},
+		{
+			"type": "text",
+			"label": "Description",
+			"id": "description" 
+		},
+		{
+			"type": "image_picker",
+			"label": "Imagen",
+			"id": "image" 
+		}
+	]
+}
+{% endschema %}

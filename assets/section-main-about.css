@@ -20,8 +20,7 @@
   flex-direction: column;
 }
 
-.w-full,
-.image {
+.w-full {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -51,9 +50,9 @@
     max-width: 100%;
   }
 
-  .image{
-		width: 100%;
-	}
+  .image {
+    width: 100%;
+  }
 }
 
 @media only screen and (min-width: 2000px) {

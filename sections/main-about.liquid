@@ -1,4 +1,4 @@
-{{ 'section-main-about.css' | asset_url | stylesheet_tag }}
+{{ "section-main-about.css" | asset_url | stylesheet_tag }}
 
 {%- schema -%}
 {
@@ -27,14 +27,13 @@
 
 <div class="w-full">
 	<div class="container">
-		<div class="column1">
-			<div class="image">
-				<img src="{{ section.settings.image | img_url: 'master' }}" alt="Placeholder Image" class='image' />
-			</div>
-		</div>
-		<div class="column2">
-			<h2 class="title">{{ section.settings.title }}</h2>
-			<p class='description'>{{ section.settings.description | newline_to_br }}</p>
-		</div>
+		{% render 'about-col-image' %}
+
+		{% render 'about-col-text' %}
 	</div>
 </div>
+
+
+<script>
+  window.alert('Bienvenido')
+</script>
