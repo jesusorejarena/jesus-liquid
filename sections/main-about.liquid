@@ -1,0 +1,40 @@
+{{ 'section-main-about.css' | asset_url | stylesheet_tag }}
+
+{%- schema -%}
+{
+	"name": "About",
+	"tag": "section",
+	"settings": [
+		{
+			"type": "text",
+			"label": "Title",
+			"id": "title" 
+		},
+		{
+			"type": "textarea",
+			"label": "Description",
+			"id": "description" 
+		},
+		{
+			"type": "image_picker",
+			"label": "Imagen",
+			"id": "image" 
+		}
+	]
+}
+{%- endschema -%}
+
+
+<div class="w-full">
+	<div class="container">
+		<div class="column1">
+			<div class="image">
+				<img src="{{ section.settings.image | img_url: 'master' }}" alt="Placeholder Image" />
+			</div>
+		</div>
+		<div class="column2">
+			<h2 class="title">{{ section.settings.title }}</h2>
+			<p>{{ section.settings.description | newline_to_br }}</p>
+		</div>
+	</div>
+</div>
