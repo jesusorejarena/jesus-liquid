@@ -134,7 +134,19 @@
           ><i class="fab fa-twitter"></i
         ></a>
       </div>
+
+      <iframe width="560" height="315" src="{{ product.metafields.youtube.link }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+      <form method="post" action="/cart/add">
+        <input type="hidden" name="id" value="{{ product.variants.first.id }}">
+        <input min="1" type="number" id="quantity" name="quantity" value="1">
+        <input type="submit" value="Add to cart" class="btn">
+      </form>
     </div>
+
+
+			{{ product.metafields.descriptors.care_guide }}
+			{{ product.metafields.youtube.link }}
   </div>
 </div>
 
