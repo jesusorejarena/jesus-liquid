@@ -22,7 +22,7 @@
   }
 
   .padding {
-    padding: 0px 50px;
+    padding: 0 50px;
   }
 
   .column1 {
@@ -37,8 +37,13 @@
     text-decoration: none;
     color: #787a80;
     font-size: 30px;
-    padding: 0px;
-    margin: 0px 10px 0px 0px;
+    padding: 0;
+    margin: 0 10px 0 0;
+  }
+
+  .image {
+    width: 300px;
+    height: 300px;
   }
 </style>
 
@@ -73,6 +78,8 @@
     </div>
     <div class="flex-col column2 padding">
       <div class="flex flex-row">
+        {{ product.metafields.custom.sale }}
+
         {% if product.compare_at_price %}
           <h2 id="product_title">{{ product.compare_at_price | money }}</h2>
         {% endif %}
@@ -84,8 +91,8 @@
           {% for values in variant.values %}
             <input
               type="radio"
-              id="color_{{ values }}"
-              name="color"
+              id="product_color_{{ values }}"
+              name="product_color"
               value="{{ values }}"
               onclick="changeColor('{{ values }}')"
             >
@@ -119,55 +126,167 @@
           class="icons"
           href="https://www.facebook.com/sharer/sharer.php?u={{ shop.url | url_encode }}"
           target="_blank"
-          ><i class="fab fa-facebook"></i
-        ></a>
+        >
+          <i class="fab fa-facebook"></i>
+        </a>
         <a
           class="icons"
           href="https://pinterest.com/pin/create/button/?url={{ shop.url | url_encode }}&media={{ product.featured_image.src | url_encode }}"
           target="_blank"
-          ><i class="fab fa-pinterest"></i
-        ></a>
+        >
+          <i class="fab fa-pinterest"></i>
+        </a>
         <a
           class="icons"
           href="https://twitter.com/intent/tweet?url={{ shop.url | url_encode }}&text={{ product.title | url_encode }}"
           target="_blank"
-          ><i class="fab fa-twitter"></i
-        ></a>
+        >
+          <i class="fab fa-twitter"></i>
+        </a>
       </div>
 
-      <iframe width="560" height="315" src="{{ product.metafields.youtube.link }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      <iframe
+        width="560"
+        height="315"
+        src="{{ product.metafields.youtube.link }}"
+        title="YouTube video player"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+      ></iframe>
 
       <form method="post" action="/cart/add">
-        <input type="hidden" name="id" value="{{ product.variants.first.id }}">
+        <input id="id_variant" type="hidden" name="id">
         <input min="1" type="number" id="quantity" name="quantity" value="1">
-        <input type="submit" value="Add to cart" class="btn">
+        <input type="submit" id="addToCart" value="Add to cart" class="btn">
       </form>
     </div>
 
+    {% comment %} {{ product.metafields.custom.upsell.value | json }} {% endcomment %}
 
-			{{ product.metafields.descriptors.care_guide }}
-			{{ product.metafields.youtube.link }}
+    {% comment %} {{ product.metafields.descriptors.care_guide }} {% endcomment %}
+    {% comment %} {{ product.metafields.youtube.link }} {% endcomment %}
+  </div>
+  <div class="flex flex-row">
+    {% assign productsUpsell = product.metafields.custom.upsell.value %}
+    {% for upsell in productsUpsell %}
+      <a
+        href="{{ upsell.url }}"
+        class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %} decoration-none"
+      >
+        <li
+          class="flex-col"
+        >
+          <div class="image">
+            {{ upsell.featured_image | img_tag: 'image alt text', '', '300x300' }}
+          </div>
+          <h4>{{ upsell.title }}</h4>
+
+          {% render 'price', product: upsell, price_class: '', show_compare_at_price: true %}
+
+          {% assign unique_colors = '' | split: ',' %}
+          {% for variant in upsell.variants %}
+            {% if variant.available %}
+              {% unless unique_colors contains variant.option2 %}
+                {% assign unique_colors = unique_colors | append: variant.option2 | append: ',' %}
+              {% endunless %}
+            {% endif %}
+          {% endfor %}
+
+          {% if upsell.available and upsell.variants.first.inventory_quantity < 5 %}
+            <div class="tag">Last Items</div>
+          {% endif %}
+
+          {% for color in unique_colors %}
+            <p>Color: {{ color | remove: '[' | remove: ']' }}</p>
+          {% endfor %}
+        </li>
+      </a>
+    {% endfor %}
   </div>
 </div>
 
 <script>
   function changeSize(size) {
-    document.getElementById('selected_size').innerText = 'Size: ' + (size ? size : 'Ninguna');
-    // Aquí puedes hacer lo que necesites con la talla seleccionada
+  	// document.getElementById('select-size').innerText = 'Size: ' + (size ? size : 'Ninguna');
+  	// Aquí puedes hacer lo que necesites con la talla seleccionada
+  	updateVariant();
   }
-</script>
 
-<script>
   function changeColor(color) {
-    document.getElementById('selected_color').innerText = 'Color: ' + color;
-    // Aquí puedes hacer lo que necesites con el color seleccionado
+  	// document.getElementById('select-color').innerText = 'Color: ' + color;
+  	// Aquí puedes hacer lo que necesites con el color seleccionado
+  	updateVariant();
   }
+
+  document.addEventListener("DOMContentLoaded", function () {
+
+  	document.getElementById("quantity").disabled = true;
+  	document.getElementById("addToCart").disabled = true;
+  });
+
+  function updateVariant() {
+
+  	console.log('object')
+
+  	let selectedSize = document.getElementById("product_size").value;
+  	let selectedColor = document.getElementsByName("product_color")
+
+  	var valorSeleccionado;
+
+
+  	selectedColor.forEach(function (opcion) {
+  		if (opcion.checked) {
+  			valorSeleccionado = opcion.value;
+  		}
+  	});
+
+  	console.log("Valor seleccionado:", valorSeleccionado);
+
+
+  	console.log(selectedSize)
+  	console.log(valorSeleccionado)
+
+  	// Aquí se debe encontrar la variante correspondiente basada en la talla y el color seleccionados
+  	let selectedVariant = findVariantByOptions(selectedSize, valorSeleccionado);
+
+  	if (selectedVariant) {
+  		// Hacer algo con la variante seleccionada, como mostrar su ID o cambiar la imagen, etc.
+  		document.getElementById('id_variant').value = selectedVariant.id
+
+  		document.getElementById("quantity").disabled = false;
+  		document.getElementById("addToCart").disabled = false;
+
+  		console.log("ID de la variante seleccionada: " + selectedVariant);
+  	} else {
+  		document.getElementById("quantity").disabled = true;
+  		document.getElementById("addToCart").disabled = true;
+  	}
+  }
+
+  function findVariantByOptions(size, color) {
+  	// Aquí se debe buscar y devolver la variante que coincide con la talla y el color seleccionados
+  	// Puedes obtener los datos de las variantes a través de Shopify API o desde el frontend si ya están disponibles.
+  	// Por ejemplo, puedes tener un array de variantes y buscar la que coincide con los parámetros.
+  	// Esto podría variar dependiendo de cómo estén estructuradas las variantes en tu tienda.
+  	// Ejemplo de cómo podrías buscar la variante en un array de variantes:
+
+  	let variants = {{ product.variants | json
+  }};
+
+  console.log(variants)
+
+  let foundVariant = variants.find(function (variant) {
+  	return variant.option1 === size && variant.option2 === color;
+  });
+
+  console.log(foundVariant)
+
+  return foundVariant;
+      }
 </script>
 
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" />
 <script type="module">
   import Swiper from 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.mjs'
